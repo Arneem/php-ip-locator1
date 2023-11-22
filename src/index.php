@@ -287,6 +287,26 @@
                 $this->toCache($url, $cache);
             return $cache;
         }
+    final class ip2geolocation extends LocatorService implements Locator {
+
+        public function locate(Ip $ip): Location|null
+        {
+            $url = 'http://ip2geolocation.com/?ip/json/' . $ip->getIp();
+            $json = $this->requester->request($url);
+            if (!$json || !isset($json['status']) || $json['status'] != 'success')
+                return null;
+            $point = new Point(
+                $json['lat'],
+                $json['lon'],
+            );
+            return new Location(
+                $ip,
+                $json['country'],
+                $json['city'],
+                $json['zip'],
+                $point
+            );
+        }
     }
 
     final class IpApiComService extends LocatorService implements Locator {
